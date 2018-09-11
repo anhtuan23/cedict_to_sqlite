@@ -31,13 +31,13 @@ class CLI:
                             dest="enable_tone_accents",
                             default=False, type=bool,
                             help="Boolean toggle to add pinyin with character "
-                            "tones as seperate column. Defaults to False.")
+                                 "tones as separate column. Defaults to False.")
         parser.add_argument("--erhua-keep-space",
                             dest="erhua_keep_space",
                             default=False, type=bool,
                             help="Boolean toggle to keep space before r if "
-                            "--enable-tone-accents is set to true. "
-                            "Defaults to False.")
+                                 "--enable-tone-accents is set to true. "
+                                 "Defaults to False.")
         self.args = parser.parse_args()
 
     def download_cedict(self):
@@ -54,7 +54,7 @@ class CLI:
         self.conn = sqlite3.connect("build/database.db")
         cursor = self.conn.cursor()
         cursor.execute("DROP TABLE IF EXISTS chinese")
-        cursor.execute("CREATE TABLE chinese (traditional TEXT,"
+        cursor.execute("CREATE TABLE chinese (_id INTEGER NOT NULL PRIMARY KEY, traditional TEXT,"
                        "simplified TEXT, pinyin_number TEXT, meanings TEXT)")
 
         if self.args.enable_tone_accents:
@@ -74,6 +74,8 @@ class CLI:
 
         cursor = self.conn.cursor()
 
+        numberOfEntry = 0
+
         with gzip.open("build/cedict.txt.gz", "rt", encoding="utf-8") as file:
             for line in file:
                 if line[0] == "#":
@@ -82,6 +84,8 @@ class CLI:
                 trad, simp = line.split(" ")[:2]
                 pinyin = line[line.index("[") + 1:line.index("]")]
                 english = line[line.index("/") + 1:-2].strip()
+
+                numberOfEntry += 1
 
                 if self.args.enable_tone_accents:
                     pinyin_tone = convert_pinyin(pinyin)
@@ -95,16 +99,16 @@ class CLI:
                     pinyin_tone = pinyin_tone.replace("u:3", "ü")
                     pinyin_tone = pinyin_tone.replace("u:4", "ǜ")
 
-                    cursor.execute("INSERT INTO chinese (traditional,"
+                    cursor.execute("INSERT INTO chinese (_id, traditional,"
                                    "simplified, pinyin_number, meanings,"
-                                   "pinyin_tone) VALUES (?,?,?,?,?)",
-                                   (trad, simp, pinyin, english,
+                                   "pinyin_tone) VALUES (?,?,?,?,?,?)",
+                                   (numberOfEntry, trad, simp, pinyin, english,
                                     pinyin_tone))
                 else:
-                    cursor.execute("INSERT INTO chinese (traditional,"
+                    cursor.execute("INSERT INTO chinese (_id, traditional,"
                                    "simplified, pinyin_number, meanings) "
                                    "VALUES (?,?,?,?)",
-                                   (trad, simp, pinyin, english))
+                                   (numberOfEntry, trad, simp, pinyin, english))
 
         cursor.close()
         self.conn.commit()
