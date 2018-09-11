@@ -51,18 +51,21 @@ class CLI:
         """ Drops the cedict database if it already exists, and then creates
             the database. """
 
-        self.conn = sqlite3.connect("build/cedict.db")
+        self.conn = sqlite3.connect("build/database.db")
         cursor = self.conn.cursor()
-        cursor.execute("DROP TABLE IF EXISTS entries")
-        cursor.execute("CREATE TABLE entries (traditional TEXT,"
-                       "simplified TEXT, pinyin TEXT, english TEXT)")
+        cursor.execute("DROP TABLE IF EXISTS chinese")
+        cursor.execute("CREATE TABLE chinese (traditional TEXT,"
+                       "simplified TEXT, pinyin_number TEXT, meanings TEXT)")
 
         if self.args.enable_tone_accents:
-            cursor.execute("ALTER TABLE entries "
-                           "ADD COLUMN pinyin_char_tone TEXT")
+            cursor.execute("ALTER TABLE chinese "
+                           "ADD COLUMN pinyin_tone TEXT")
 
-        cursor.execute("CREATE INDEX entries_index "
-                       "ON entries (traditional, simplified)")
+        cursor.execute("CREATE INDEX index_chinese_simplified "
+                       "ON chinese (simplified)")
+
+        cursor.execute("CREATE INDEX index_chinese_traditional "
+                       "ON chinese (traditional)")
         cursor.close()
 
     def populate_db(self):
@@ -81,25 +84,25 @@ class CLI:
                 english = line[line.index("/") + 1:-2].strip()
 
                 if self.args.enable_tone_accents:
-                    pinyin_char_tone = convert_pinyin(pinyin)
+                    pinyin_tone = convert_pinyin(pinyin)
                     if self.args.erhua_keep_space:
-                        pinyin_char_tone = pinyin_char_tone.replace("r5", "r")
+                        pinyin_tone = pinyin_tone.replace("r5", "r")
                     else:
-                        pinyin_char_tone = pinyin_char_tone.replace(" r5", "r")
+                        pinyin_tone = pinyin_tone.replace(" r5", "r")
                     # Some of the pinyin is capitalized so that's why I'm
                     # leaving the preceding l out.
-                    pinyin_char_tone = pinyin_char_tone.replace("u:2", "ǘ")
-                    pinyin_char_tone = pinyin_char_tone.replace("u:3", "ü")
-                    pinyin_char_tone = pinyin_char_tone.replace("u:4", "ǜ")
+                    pinyin_tone = pinyin_tone.replace("u:2", "ǘ")
+                    pinyin_tone = pinyin_tone.replace("u:3", "ü")
+                    pinyin_tone = pinyin_tone.replace("u:4", "ǜ")
 
-                    cursor.execute("INSERT INTO entries (traditional,"
-                                   "simplified, pinyin, english,"
-                                   "pinyin_char_tone) VALUES (?,?,?,?,?)",
+                    cursor.execute("INSERT INTO chinese (traditional,"
+                                   "simplified, pinyin_number, meanings,"
+                                   "pinyin_tone) VALUES (?,?,?,?,?)",
                                    (trad, simp, pinyin, english,
-                                    pinyin_char_tone))
+                                    pinyin_tone))
                 else:
-                    cursor.execute("INSERT INTO entries (traditional,"
-                                   "simplified, pinyin, english) "
+                    cursor.execute("INSERT INTO chinese (traditional,"
+                                   "simplified, pinyin_number, meanings) "
                                    "VALUES (?,?,?,?)",
                                    (trad, simp, pinyin, english))
 
