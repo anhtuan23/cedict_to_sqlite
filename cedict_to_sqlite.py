@@ -100,6 +100,7 @@ class CLI:
                     pinyin_tone = pinyin_tone.replace("u:3", "ǚ")
                     pinyin_tone = pinyin_tone.replace("u:4", "ǜ")
                     pinyin_tone = pinyin_tone.replace("u:5", "ü")
+                    pinyin_tone = pinyin_tone.replace("u:è", "üè")
 
                     cursor.execute("INSERT INTO chinese (_id, traditional,"
                                    "simplified, pinyin_number, meanings,"
