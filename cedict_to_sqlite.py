@@ -54,12 +54,17 @@ class CLI:
         self.conn = sqlite3.connect("build/database.db")
         cursor = self.conn.cursor()
         cursor.execute("DROP TABLE IF EXISTS chinese")
-        cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT,"
-                       "simplified TEXT, pinyin_number TEXT, meanings TEXT)")
 
         if self.args.enable_tone_accents:
-            cursor.execute("ALTER TABLE chinese "
-                           "ADD COLUMN pinyin_tone TEXT")
+            cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT NOT NULL,"
+                  "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL, pinyin_tone TEXT NOT NULL)")
+        else:
+            cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT NOT NULL,"
+                "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL)")
+
+
+        cursor.execute("CREATE UNIQUE INDEX index_chinese_traditional_simplified_pinyin_number "
+                       "ON chinese (traditional, simplified, pinyin_number)")
 
         cursor.execute("CREATE INDEX index_chinese_simplified "
                        "ON chinese (simplified)")
