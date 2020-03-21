@@ -1,0 +1,3 @@
+pipenv run python cedict_to_sqlite.py --enable-tone-accents=true
+
+pipenv run python vnedict_to_sqlite.py
