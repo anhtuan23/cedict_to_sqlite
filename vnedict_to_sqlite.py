@@ -41,6 +41,9 @@ class CLI:
 
                 word, definition = line.split(":")
 
+                word = word.strip()
+                definition = definition.strip()
+
                 numberOfEntry += 1
 
                 cursor.execute("INSERT INTO vietnamese (rowid, word, definition) "
