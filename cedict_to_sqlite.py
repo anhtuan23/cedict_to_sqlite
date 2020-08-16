@@ -96,11 +96,14 @@ class CLI:
                     pinyin_tone = pinyin_tone.replace("u:1", "ǖ")
                     pinyin_tone = pinyin_tone.replace("u:2", "ǘ")
                     pinyin_tone = pinyin_tone.replace("u:3", "ǚ")
-                                   "pinyin_tone) VALUES (?,?,?,?,?)",
+                    pinyin_tone = pinyin_tone.replace("u:4", "ǜ")
+                    pinyin_tone = pinyin_tone.replace("u:5", "ü")
+                    pinyin_tone = pinyin_tone.replace("u:è", "üè")
+
+                    cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings, pinyin_tone) VALUES (?,?,?,?,?)",
                                    (simp, trad, pinyin, english, pinyin_tone))
                 else:
-                    cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings) "
-                                   "VALUES (?,?,?,?)",
+                    cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings) VALUES (?,?,?,?)",
                                    (simp, trad, pinyin, english))
 
         cursor.close()
