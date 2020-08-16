@@ -15,8 +15,6 @@ class CLI:
                        "cedict_1_0_ts_utf-8_mdbg.txt.gz")
 
     def __init__(self):
-        Path("build/").mkdir(exist_ok=True)
-
         self.init_args()
         self.download_cedict()
         self.init_db()
@@ -32,6 +30,10 @@ class CLI:
                             default=False, type=bool,
                             help="Boolean toggle to add pinyin with character "
                                  "tones as separate column. Defaults to False.")
+        parser.add_argument("-d", "--download",
+                            dest="download",
+                            default=False, type=bool,
+                            help="Should donwload latest cc-cedict or not")
         parser.add_argument("--erhua-keep-space",
                             dest="erhua_keep_space",
                             default=False, type=bool,
@@ -42,26 +44,25 @@ class CLI:
 
     def download_cedict(self):
         """ Downloads the cedict file and stores it on the filesystem. """
-
-        if not Path("build/cedict.txt.gz").is_file():
-            with open("build/cedict.txt.gz", "wb") as file:
+        # if db does not exist or --download is true, download anew
+        if not Path("cedict.txt.gz").is_file() or self.args.download:
+            with open("cedict.txt.gz", "wb") as file:
                 file.write(requests.get(self.WEB_CEDICT_FILE).content)
 
     def init_db(self):
         """ Drops the cedict database if it already exists, and then creates
             the database. """
 
-        self.conn = sqlite3.connect("build/database.db")
+        self.conn = sqlite3.connect("database.db")
         cursor = self.conn.cursor()
         cursor.execute("DROP TABLE IF EXISTS chinese")
 
         if self.args.enable_tone_accents:
             cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT NOT NULL,"
-                  "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL, pinyin_tone TEXT NOT NULL)")
+                           "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL, pinyin_tone TEXT NOT NULL)")
         else:
             cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT NOT NULL,"
-                "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL)")
-
+                           "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL)")
 
         cursor.execute("CREATE UNIQUE INDEX index_chinese_traditional_simplified_pinyin_number "
                        "ON chinese (traditional, simplified, pinyin_number)")
@@ -81,7 +82,7 @@ class CLI:
 
         numberOfEntry = 0
 
-        with gzip.open("build/cedict.txt.gz", "rt", encoding="utf-8") as file:
+        with gzip.open("cedict.txt.gz", "rt", encoding="utf-8") as file:
             for line in file:
                 if line[0] == "#":
                     continue
