@@ -7,3 +7,5 @@ build/
 
 .vscode
 Pipfile.lock
+cedict.txt.gz
+database.db

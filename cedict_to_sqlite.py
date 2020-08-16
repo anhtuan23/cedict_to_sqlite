@@ -55,23 +55,15 @@ class CLI:
 
         self.conn = sqlite3.connect("database.db")
         cursor = self.conn.cursor()
-        cursor.execute("DROP TABLE IF EXISTS chinese")
+        cursor.execute("DROP TABLE IF EXISTS Chinese")
 
         if self.args.enable_tone_accents:
-            cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT NOT NULL,"
-                           "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL, pinyin_tone TEXT NOT NULL)")
+            cursor.execute(
+                "CREATE VIRTUAL TABLE Chinese USING fts4(simplified, traditional, pinyin, meanings, pinyin_tone)")
         else:
-            cursor.execute("CREATE TABLE chinese (rowid INTEGER NOT NULL PRIMARY KEY, traditional TEXT NOT NULL,"
-                           "simplified TEXT NOT NULL, pinyin_number TEXT NOT NULL, meanings TEXT NOT NULL)")
+            cursor.execute(
+                "CREATE VIRTUAL TABLE Chinese USING fts4(simplified, traditional, pinyin, meanings)")
 
-        cursor.execute("CREATE UNIQUE INDEX index_chinese_traditional_simplified_pinyin_number "
-                       "ON chinese (traditional, simplified, pinyin_number)")
-
-        cursor.execute("CREATE INDEX index_chinese_simplified "
-                       "ON chinese (simplified)")
-
-        cursor.execute("CREATE INDEX index_chinese_traditional "
-                       "ON chinese (traditional)")
         cursor.close()
 
     def populate_db(self):
@@ -104,20 +96,12 @@ class CLI:
                     pinyin_tone = pinyin_tone.replace("u:1", "ǖ")
                     pinyin_tone = pinyin_tone.replace("u:2", "ǘ")
                     pinyin_tone = pinyin_tone.replace("u:3", "ǚ")
-                    pinyin_tone = pinyin_tone.replace("u:4", "ǜ")
-                    pinyin_tone = pinyin_tone.replace("u:5", "ü")
-                    pinyin_tone = pinyin_tone.replace("u:è", "üè")
-
-                    cursor.execute("INSERT INTO chinese (rowid, traditional,"
-                                   "simplified, pinyin_number, meanings,"
-                                   "pinyin_tone) VALUES (?,?,?,?,?,?)",
-                                   (numberOfEntry, trad, simp, pinyin, english,
-                                    pinyin_tone))
+                                   "pinyin_tone) VALUES (?,?,?,?,?)",
+                                   (simp, trad, pinyin, english, pinyin_tone))
                 else:
-                    cursor.execute("INSERT INTO chinese (rowid, traditional,"
-                                   "simplified, pinyin_number, meanings) "
+                    cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings) "
                                    "VALUES (?,?,?,?)",
-                                   (numberOfEntry, trad, simp, pinyin, english))
+                                   (simp, trad, pinyin, english))
 
         cursor.close()
         self.conn.commit()

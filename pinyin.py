@@ -9,7 +9,7 @@ pinyinToneMarks = {
 }
 
 
-def convertPinyinCallback(match: Match):
+def convertPinyinCallback(match):
     # group 3 is number tone ([12345])
     tone = int(match.group(3)) % 5
     # group 1 is vowels
