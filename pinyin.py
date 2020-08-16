@@ -8,16 +8,25 @@ pinyinToneMarks = {
     'O': 'ŌÓǑÒ', 'U': 'ŪÚǓÙ', 'Ü': 'ǕǗǙǛ'
 }
 
-def convertPinyinCallback(m):
-    tone=int(m.group(3))%5
-    r=m.group(1).replace('v', 'ü').replace('V', 'Ü')
-    # for multple vowels, use first one if it is a/e/o, otherwise use second one
-    pos=0
-    if len(r)>1 and not r[0] in 'aeoAEO':
-        pos=1
-    if tone != 0:
-        r=r[0:pos]+pinyinToneMarks[r[pos]][tone-1]+r[pos+1:]
-    return r+m.group(2)
 
-def convert_pinyin(s):
-    return re.sub(r'([aeiouüvÜ]{1,3})(n?g?r?)([012345])', convertPinyinCallback, s, flags=re.IGNORECASE)
+def convertPinyinCallback(match: Match):
+    # group 3 is number tone ([12345])
+    tone = int(match.group(3)) % 5
+    # group 1 is vowels
+    vowels = match.group(1).replace('v', 'ü').replace('V', 'Ü')
+    # for multple vowels, use first one if it is a/e/o, otherwise use second one
+    pos = 0
+    if len(vowels) > 1 and not vowels[0] in 'aeoAEO':
+        pos = 1
+    if tone != 0:
+        vowels = vowels[0:pos] + \
+            pinyinToneMarks[vowels[pos]][tone-1] + \
+            vowels[pos+1:]
+    # group 3 are consonants after the vowels
+    return vowels + match.group(2)
+
+
+def convert_pinyin(string):
+    # Convert from number accent to symbol accent
+    # Match from vowel to end of word
+    return re.sub(r'([aeiouüvÜ]{1,3})(n?g?r?)([012345])', convertPinyinCallback, string, flags=re.IGNORECASE)
