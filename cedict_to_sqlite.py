@@ -87,13 +87,13 @@ class CLI:
 
                 numberOfEntry += 1
 
+                removedErHua = "r5" if self.args.erhua_keep_space else " r5" 
+
                 if self.args.enable_tone_accents:
                     pinyin_tone = convert_pinyin(pinyin)
-                    if self.args.erhua_keep_space:
-                        pinyin_tone = pinyin_tone.replace("r5", "r")
-                    else:
-                        pinyin_tone = pinyin_tone.replace(" r5", "r")
-                        # pinyin = attach_er_hua(pinyin)
+                    pinyin_tone = pinyin_tone.replace(removedErHua, "r")
+                    
+                    # pinyin = attach_er_hua(pinyin)
 
                     cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings, pinyin_tone) VALUES (?,?,?,?,?)",
                                    (simp, trad, pinyin, english, pinyin_tone))
