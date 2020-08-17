@@ -93,12 +93,12 @@ class CLI:
                         pinyin_tone = pinyin_tone.replace("r5", "r")
                     else:
                         pinyin_tone = pinyin_tone.replace(" r5", "r")
-                        pinyin = attach_er_hua(pinyin)
+                        # pinyin = attach_er_hua(pinyin)
 
                     cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings, pinyin_tone) VALUES (?,?,?,?,?)",
                                    (simp, trad, pinyin, english, pinyin_tone))
                 else:
-                    pinyin = attach_er_hua(pinyin)
+                    # pinyin = attach_er_hua(pinyin)
                     cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings) VALUES (?,?,?,?)",
                                    (simp, trad, pinyin, english))
 
