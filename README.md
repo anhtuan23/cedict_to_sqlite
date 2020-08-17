@@ -9,3 +9,5 @@ Converts CEDICT into a SQLite database.
 
 # Usage
 `pipenv run python3 cedict_to_sqlite.py`
+or
+`python cedict_to_sqlite.py`
