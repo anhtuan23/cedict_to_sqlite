@@ -4,7 +4,7 @@ import gzip
 from pathlib import Path
 from argparse import ArgumentParser
 import requests
-from pinyin import convert_pinyin
+from pinyin import convert_pinyin, attach_er_hua
 
 
 class CLI:
@@ -79,6 +79,8 @@ class CLI:
                 if line[0] == "#":
                     continue
 
+                line = line.replace("u:", "ü")
+
                 trad, simp = line.split(" ")[:2]
                 pinyin = line[line.index("[") + 1:line.index("]")]
                 english = line[line.index("/") + 1:-2].strip()
@@ -91,18 +93,12 @@ class CLI:
                         pinyin_tone = pinyin_tone.replace("r5", "r")
                     else:
                         pinyin_tone = pinyin_tone.replace(" r5", "r")
-                    # Some of the pinyin is capitalized so that's why I'm
-                    # leaving the preceding l out.
-                    pinyin_tone = pinyin_tone.replace("u:1", "ǖ")
-                    pinyin_tone = pinyin_tone.replace("u:2", "ǘ")
-                    pinyin_tone = pinyin_tone.replace("u:3", "ǚ")
-                    pinyin_tone = pinyin_tone.replace("u:4", "ǜ")
-                    pinyin_tone = pinyin_tone.replace("u:5", "ü")
-                    pinyin_tone = pinyin_tone.replace("u:è", "üè")
+                        pinyin = attach_er_hua(pinyin)
 
                     cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings, pinyin_tone) VALUES (?,?,?,?,?)",
                                    (simp, trad, pinyin, english, pinyin_tone))
                 else:
+                    pinyin = attach_er_hua(pinyin)
                     cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings) VALUES (?,?,?,?)",
                                    (simp, trad, pinyin, english))
 

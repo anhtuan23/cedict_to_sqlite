@@ -30,3 +30,14 @@ def convert_pinyin(string):
     # Convert from number accent to symbol accent
     # Match from vowel to end of word
     return re.sub(r'([aeiouüvÜ]{1,3})(n?g?r?)([012345])', convertPinyinCallback, string, flags=re.IGNORECASE)
+
+
+def convertErhuaCallback(match):
+    return "r" + match.group(1)
+
+
+def attach_er_hua(string):
+    # attach r5 to the previous syllable
+    # ex: yi1 hui3 r5 -> yi1 huir3
+    # note: there is no cases of (\D)(\sr5) - (not number precede er hua) exist
+    return re.sub(r'(\d)(\sr5)', convertErhuaCallback, string, flags=re.IGNORECASE)
