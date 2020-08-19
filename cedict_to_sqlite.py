@@ -25,7 +25,7 @@ class CLI:
 
         parser = ArgumentParser(
             description="Converts cedict to a sqlite database.")
-        parser.add_argument("--enable-tone-accents",
+        parser.add_argument("-a", "--enable-tone-accents",
                             dest="enable_tone_accents",
                             default=False, type=bool,
                             help="Boolean toggle to add pinyin with character "
@@ -34,7 +34,7 @@ class CLI:
                             dest="download",
                             default=False, type=bool,
                             help="Should donwload latest cc-cedict or not")
-        parser.add_argument("--erhua-keep-space",
+        parser.add_argument("-r", "--erhua-keep-space",
                             dest="erhua_keep_space",
                             default=False, type=bool,
                             help="Boolean toggle to keep space before r if "
@@ -83,16 +83,17 @@ class CLI:
 
                 trad, simp = line.split(" ")[:2]
                 pinyin = line[line.index("[") + 1:line.index("]")]
-                english = line[line.index("/") + 1:-2].strip()
+                english = line[line.index(
+                    "/") + 1:-2].strip().replace(";", " /")
 
                 numberOfEntry += 1
 
-                removedErHua = "r5" if self.args.erhua_keep_space else " r5" 
+                removedErHua = "r5" if self.args.erhua_keep_space else " r5"
 
                 if self.args.enable_tone_accents:
                     pinyin_tone = convert_pinyin(pinyin)
                     pinyin_tone = pinyin_tone.replace(removedErHua, "r")
-                    
+
                     # pinyin = attach_er_hua(pinyin)
 
                     cursor.execute("INSERT INTO Chinese (simplified, traditional, pinyin, meanings, pinyin_tone) VALUES (?,?,?,?,?)",
