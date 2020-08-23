@@ -5,6 +5,7 @@ from pathlib import Path
 from argparse import ArgumentParser
 import requests
 from pinyin import convert_pinyin, attach_er_hua
+import re
 
 
 class CLI:
@@ -84,7 +85,8 @@ class CLI:
                 trad, simp = line.split(" ")[:2]
                 pinyin = line[line.index("[") + 1:line.index("]")]
                 english = line[line.index(
-                    "/") + 1:-2].strip().replace(";", " /")
+                    "/") + 1:-2].strip()
+                english = re.sub(";\\s+", "/", english)
 
                 numberOfEntry += 1
 
